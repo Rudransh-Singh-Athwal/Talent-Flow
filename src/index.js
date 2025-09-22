@@ -5,16 +5,16 @@ import App from "./App";
 import storageService from "./services/storage";
 
 // Start MSW
-// if (process.env.NODE_ENV === "development") {
-//   const { worker } = require("./mocks/browser");
-//   worker.start({
-//     onUnhandledRequest: "bypass",
-//   });
-// }
+if (process.env.NODE_ENV === "development") {
+  const { worker } = require("./mocks/browser");
+  worker.start({
+    onUnhandledRequest: "bypass",
+  });
+}
 
 // Initialize storage and render app
 async function initApp() {
-  // await storageService.init();
+  await storageService.init();
 
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(
