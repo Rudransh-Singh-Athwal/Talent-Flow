@@ -1,4 +1,4 @@
-import { http } from "msw";
+import { rest } from "msw";
 import storageService from "../services/storage";
 
 // Utility to add artificial delay
@@ -10,7 +10,7 @@ const shouldError = () => Math.random() < 0.05;
 
 export const handlers = [
   // Jobs endpoints
-  http.get("/api/jobs", async (req, res, ctx) => {
+  rest.get("/api/jobs", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -38,7 +38,7 @@ export const handlers = [
     }
   }),
 
-  http.get("/api/jobs/:id", async (req, res, ctx) => {
+  rest.get("/api/jobs/:id", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -56,7 +56,7 @@ export const handlers = [
     }
   }),
 
-  http.post("/api/jobs", async (req, res, ctx) => {
+  rest.post("/api/jobs", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -72,7 +72,7 @@ export const handlers = [
     }
   }),
 
-  http.patch("/api/jobs/:id", async (req, res, ctx) => {
+  rest.patch("/api/jobs/:id", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -88,7 +88,7 @@ export const handlers = [
     }
   }),
 
-  http.patch("/api/jobs/:id/reorder", async (req, res, ctx) => {
+  rest.patch("/api/jobs/:id/reorder", async (req, res, ctx) => {
     await delay();
 
     // Higher error rate for reorder to test rollback
@@ -106,7 +106,7 @@ export const handlers = [
   }),
 
   // Candidates endpoints
-  http.get("/api/candidates", async (req, res, ctx) => {
+  rest.get("/api/candidates", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -132,7 +132,7 @@ export const handlers = [
     }
   }),
 
-  http.get("/api/candidates/:id", async (req, res, ctx) => {
+  rest.get("/api/candidates/:id", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -150,7 +150,7 @@ export const handlers = [
     }
   }),
 
-  http.patch("/api/candidates/:id", async (req, res, ctx) => {
+  rest.patch("/api/candidates/:id", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -169,7 +169,7 @@ export const handlers = [
     }
   }),
 
-  http.get("/api/candidates/:id/timeline", async (req, res, ctx) => {
+  rest.get("/api/candidates/:id/timeline", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -185,7 +185,7 @@ export const handlers = [
   }),
 
   // Assessments endpoints
-  http.get("/api/assessments/:jobId", async (req, res, ctx) => {
+  rest.get("/api/assessments/:jobId", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -200,7 +200,7 @@ export const handlers = [
     }
   }),
 
-  http.put("/api/assessments/:jobId", async (req, res, ctx) => {
+  rest.put("/api/assessments/:jobId", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
@@ -219,7 +219,7 @@ export const handlers = [
     }
   }),
 
-  http.post("/api/assessments/:jobId/submit", async (req, res, ctx) => {
+  rest.post("/api/assessments/:jobId/submit", async (req, res, ctx) => {
     await delay();
 
     if (shouldError()) {
