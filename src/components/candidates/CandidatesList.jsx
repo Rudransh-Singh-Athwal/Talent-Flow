@@ -1,5 +1,5 @@
 import React from "react";
-import { List } from "react-window";
+import { FixedSizeList } from "react-window";
 import { Link } from "react-router-dom";
 
 const CandidateRow = ({ index, style, data }) => {
@@ -94,14 +94,14 @@ const CandidatesList = ({
         className="virtualized-list"
         style={{ height: "600px", background: "white", borderRadius: "12px" }}
       >
-        <List
+        <FixedSizeList
           height={600}
           itemCount={candidates.length}
           itemSize={80}
           itemData={{ candidates, onStageUpdate }}
         >
           {CandidateRow}
-        </List>
+        </FixedSizeList>
       </div>
 
       {pagination.totalPages > 1 && (
