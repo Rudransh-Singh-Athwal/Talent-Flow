@@ -5,10 +5,10 @@ import {
   Route,
   NavLink,
 } from "react-router-dom";
-// import JobsPage from "./pages/JobsPage";
-// import CandidatesPage from "./pages/CandidatesPage";
-// import CandidateProfilePage from "./pages/CandidateProfilePage";
-// import AssessmentsPage from "./pages/AssessmentsPage";
+import JobsPage from "./pages/JobsPage";
+import CandidatesPage from "./pages/CandidatesPage";
+import CandidateProfilePage from "./pages/CandidateProfilePage";
+import AssessmentsPage from "./pages/AssessmentsPage";
 import "./App.css";
 
 function App() {
@@ -43,9 +43,9 @@ function App() {
 
         <main className="main-content">
           <Routes>
-            {/* <Route path="/" element={<JobsPage />} />
-            <Route path="/jobs" element={<JobsPage />} />
-            <Route path="/jobs/:jobId" element={<JobsPage />} />
+            {/* <Route path="/" element={<JobsPage />} /> */}
+            {/* <Route path="/jobs" element={<JobsPage />} /> */}
+            {/* <Route path="/jobs/:jobId" element={<JobsPage />} />
             <Route path="/candidates" element={<CandidatesPage />} />
             <Route path="/candidates/:id" element={<CandidateProfilePage />} />
             <Route path="/assessments" element={<AssessmentsPage />} />
