@@ -1,5 +1,5 @@
 import React from "react";
-import { FixedSizeList as List } from "react-window";
+import { List } from "react-window";
 import { Link } from "react-router-dom";
 
 const CandidateRow = ({ index, style, data }) => {
