@@ -48,8 +48,8 @@ function App() {
             <Route path="/jobs/:jobId" element={<JobsPage />} />
             <Route path="/candidates" element={<CandidatesPage />} />
             <Route path="/candidates/:id" element={<CandidateProfilePage />} />
-            {/* <Route path="/assessments" element={<AssessmentsPage />} /> */}
-            {/* <Route path="/assessments/:jobId" element={<AssessmentsPage />} /> */}
+            <Route path="/assessments" element={<AssessmentsPage />} />
+            <Route path="/assessments/:jobId" element={<AssessmentsPage />} />
           </Routes>
         </main>
       </div>
