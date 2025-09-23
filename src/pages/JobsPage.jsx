@@ -9,23 +9,35 @@ const JobsPage = () => {
   const { jobId } = useParams();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
+
+  // Separate applied filters (used for API calls) from form filters (used for input)
+  const [appliedFilters, setAppliedFilters] = useState({
     search: "",
     status: "",
     page: 1,
     pageSize: 10,
   });
+
+  const [formFilters, setFormFilters] = useState({
+    search: "",
+    status: "",
+    page: 1,
+    pageSize: 10,
+  });
+
   const [pagination, setPagination] = useState({});
   const [showJobForm, setShowJobForm] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [error, setError] = useState("");
 
   // Fetch jobs
-  const fetchJobs = async () => {
+  const fetchJobs = async (filtersToUse = appliedFilters) => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`/api/jobs?${new URLSearchParams(filters)}`);
+      const response = await fetch(
+        `/api/jobs?${new URLSearchParams(filtersToUse)}`
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch jobs");
@@ -63,20 +75,35 @@ const JobsPage = () => {
 
   useEffect(() => {
     fetchJobs();
-  }, [filters]);
+  }, [appliedFilters]);
 
   useEffect(() => {
     loadJobFromUrl();
   }, [jobId]);
 
-  // Handle filter changes
+  // Handle filter changes (updates form but doesn't trigger API call)
   const handleFiltersChange = (newFilters) => {
-    setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
+    setFormFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
-  // Handle pagination
+  // Handle search button click (applies filters and triggers API call)
+  const handleSearch = () => {
+    const newAppliedFilters = { ...formFilters, page: 1 };
+    setAppliedFilters(newAppliedFilters);
+  };
+
+  // Handle pagination (directly updates applied filters for immediate effect)
   const handlePageChange = (page) => {
-    setFilters((prev) => ({ ...prev, page }));
+    const newAppliedFilters = { ...appliedFilters, page };
+    setAppliedFilters(newAppliedFilters);
+    setFormFilters((prev) => ({ ...prev, page }));
+  };
+
+  // Handle status filter change (immediate effect for dropdown)
+  const handleStatusFilterChange = (status) => {
+    const newFilters = { ...formFilters, status, page: 1 };
+    setFormFilters(newFilters);
+    setAppliedFilters(newFilters);
   };
 
   // Handle job actions
@@ -168,8 +195,10 @@ const JobsPage = () => {
       )}
 
       <JobFilters
-        filters={filters}
+        filters={formFilters}
         onFiltersChange={handleFiltersChange}
+        onSearch={handleSearch}
+        onStatusChange={handleStatusFilterChange}
         loading={loading}
       />
 
