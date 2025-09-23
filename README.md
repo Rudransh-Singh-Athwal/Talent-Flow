@@ -1,70 +1,196 @@
-# Getting Started with Create React App
+# TalentFlow - Mini Hiring Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based hiring management platform that allows HR teams to manage jobs, candidates, and assessments without a backend.
 
-## Available Scripts
+## 🚀 Features
 
-In the project directory, you can run:
+### Jobs Management
 
-### `npm start`
+- ✅ Create, edit, and archive jobs
+- ✅ Server-like pagination and filtering
+- ✅ Drag-and-drop job reordering with optimistic updates
+- ✅ Deep linking to specific jobs (`/jobs/:jobId`)
+- ✅ Form validation (required title, unique slug)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Candidates Management
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- ✅ Virtualized list handling 1000+ candidates
+- ✅ Client-side search (name/email) and server-like filtering
+- ✅ Kanban board for stage management with drag-and-drop
+- ✅ Candidate profile pages with timeline
+- ✅ Stage transition tracking with notes
 
-### `npm test`
+### Assessment Builder
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- ✅ Job-specific assessment builder
+- ✅ Multiple question types: single-choice, multi-choice, short text, long text, numeric, file upload
+- ✅ Live preview pane showing fillable form
+- ✅ Form validation (required fields, numeric ranges, max length)
+- ✅ Conditional questions (show Q3 if Q1 === "Yes")
+- ✅ Local persistence of builder state
 
-### `npm run build`
+## 🛠 Technical Implementation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Architecture
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Frontend**: React 18 with functional components and hooks
+- **Routing**: React Router v6 with deep linking support
+- **State Management**: React state + custom hooks
+- **Drag & Drop**: @dnd-kit for modern drag-and-drop
+- **Virtualization**: react-window for large candidate lists
+- **Mock API**: MSW (Mock Service Worker) simulating REST endpoints
+- **Storage**: Dexie (IndexedDB wrapper) for local persistence
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Mock API Endpoints
 
-### `npm run eject`
+```
+GET /api/jobs?search=&status=&page=&pageSize=&sort=
+POST /api/jobs
+PATCH /api/jobs/:id
+PATCH /api/jobs/:id/reorder
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+GET /api/candidates?search=&stage=&page=&pageSize=
+PATCH /api/candidates/:id
+GET /api/candidates/:id/timeline
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+GET /api/assessments/:jobId
+PUT /api/assessments/:jobId
+POST /api/assessments/:jobId/submit
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Data Persistence
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- All data persists in IndexedDB using Dexie
+- MSW acts as network layer with artificial latency (200-1200ms)
+- 5-10% error rate on write operations for testing
+- Data survives browser refresh
 
-## Learn More
+### Seed Data
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- 25 jobs (mixed active/archived)
+- 1,000 candidates across different stages
+- Sample assessments with 10+ questions each
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 📦 Setup Instructions
 
-### Code Splitting
+### Prerequisites
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- Node.js 16+
+- npm or yarn
 
-### Analyzing the Bundle Size
+### Installation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+1. **Clone and install dependencies:**
 
-### Making a Progressive Web App
+```bash
+npx create-react-app talentflow
+cd talentflow
+npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
+npm install msw dexie react-router-dom react-window
+npm install --save-dev @faker-js/faker
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+2. **Setup MSW:**
 
-### Advanced Configuration
+```bash
+npx msw init public/ --save
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+3. **Replace the default files with the provided code structure**
 
-### Deployment
+4. **Start the development server:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```bash
+npm start
+```
 
-### `npm run build` fails to minify
+The app will be available at `http://localhost:3000`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🏗 File Structure
+
+```
+src/
+├── components/
+│   ├── ui/
+│   │   └── Modal.jsx
+│   ├── jobs/
+│   │   ├── JobsList.jsx
+│   │   ├── JobForm.jsx
+│   │   ├── JobCard.jsx
+│   │   └── JobFilters.jsx
+│   ├── candidates/
+│   │   ├── CandidatesList.jsx
+│   │   ├── KanbanBoard.jsx
+│   │   └── Timeline.jsx
+│   └── assessments/
+│       ├── AssessmentBuilder.jsx
+│       ├── AssessmentPreview.jsx
+│       └── QuestionTypes.jsx
+├── pages/
+│   ├── JobsPage.jsx
+│   ├── CandidatesPage.jsx
+│   ├── CandidateProfilePage.jsx
+│   └── AssessmentsPage.jsx
+├── services/
+│   └── storage.js
+├── mocks/
+│   ├── handlers.js
+│   └── browser.js
+├── App.jsx
+├── App.css
+└── index.js
+```
+
+## 🎯 Key Features Demo
+
+### Jobs Management
+
+- Navigate to `/jobs` to see paginated job listings
+- Use filters to search by title/tags or filter by status
+- Create new jobs with validation
+- Drag jobs to reorder (with failure simulation)
+- Archive/unarchive jobs
+
+### Candidates
+
+- View `/candidates` for virtualized list of 1000 candidates
+- Switch between List and Kanban views
+- Search by name/email, filter by stage
+- Drag candidates between stages in Kanban view
+- Click candidate names to view profile with timeline
+
+### Assessments
+
+- Go to `/assessments` to build job-specific assessments
+- Add sections and various question types
+- See live preview while building
+- Test conditional questions and validation
+
+## 🔧 Technical Decisions
+
+### Why MSW over JSON Server?
+
+- Better integration with React development workflow
+- Realistic network simulation with latency/errors
+- No separate server process needed
+
+### Why Dexie over LocalStorage?
+
+- Better performance for large datasets
+- Structured queries and indexing
+- Handles complex data relationships
+
+### Why @dnd-kit over react-beautiful-dnd?
+
+- Better accessibility support
+- Modern React patterns (hooks-based)
+- Better TypeScript support
+- Still actively maintained
+
+## 🐛 Known Issues & Limitations
+
+1. **File Upload**: Currently just a placeholder (no actual file handling)
+2. **@mentions**: Renders @mentions but no live suggestions
+3. **Assessment Conditions**: Simple string evaluation (security risk in production)
+4. **Mobile UX**: Basic responsive design, could be improved
+5. **Error Handling**: Basic error states, could be more comprehensive
