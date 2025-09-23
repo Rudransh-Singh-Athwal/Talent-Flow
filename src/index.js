@@ -9,7 +9,7 @@ async function initApp() {
   console.log("Initializing TalentFlow app...");
 
   // Start MSW first in development
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.REACT_APP_ENABLE_MSW === "true") {
     try {
       const { startWorker } = await import("./mocks/browser");
       await startWorker();
