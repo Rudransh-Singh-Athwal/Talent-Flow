@@ -4,24 +4,60 @@ import "./index.css";
 import App from "./App";
 import storageService from "./services/storage";
 
-// Start MSW
-if (process.env.NODE_ENV === "development") {
-  const { worker } = require("./mocks/browser");
-  worker.start({
-    onUnhandledRequest: "bypass",
-  });
-}
-
-// Initialize storage and render app
+// Initialize MSW and start app
 async function initApp() {
-  await storageService.init();
+  console.log("Initializing TalentFlow app...");
 
+  // Start MSW first in development
+  if (process.env.NODE_ENV === "development") {
+    try {
+      const { startWorker } = await import("./mocks/browser");
+      await startWorker();
+      console.log("MSW initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize MSW:", error);
+      // Continue without MSW if it fails to load
+    }
+  }
+
+  // Initialize storage
+  try {
+    await storageService.init();
+    console.log("Storage service initialized successfully");
+  } catch (error) {
+    console.error("Failed to initialize storage service:", error);
+  }
+
+  // Render the app
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(
     <React.StrictMode>
       <App />
     </React.StrictMode>
   );
+
+  console.log("App rendered successfully");
 }
 
-initApp();
+// Add error boundary for the entire app initialization
+initApp().catch((error) => {
+  console.error("Failed to initialize app:", error);
+
+  // Fallback render without MSW
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(
+    <React.StrictMode>
+      <div style={{ padding: "20px", color: "red" }}>
+        <h1>App Initialization Error</h1>
+        <p>
+          There was an error initializing the app. Please check the console for
+          details.
+        </p>
+        <details>
+          <summary>Error Details</summary>
+          <pre>{error.message}</pre>
+        </details>
+      </div>
+    </React.StrictMode>
+  );
+});

@@ -1,4 +1,4 @@
-import { http } from "msw";
+import { http, HttpResponse } from "msw";
 import storageService from "../services/storage";
 
 // Utility to add artificial delay
@@ -10,14 +10,14 @@ const shouldError = () => Math.random() < 0.05;
 
 export const handlers = [
   // Jobs endpoints
-  http.get("/api/jobs", async (req, res, ctx) => {
+  http.get("/api/jobs", async ({ request }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
-    const url = new URL(req.url);
+    const url = new URL(request.url);
     const search = url.searchParams.get("search") || "";
     const status = url.searchParams.get("status") || "";
     const page = parseInt(url.searchParams.get("page")) || 1;
@@ -32,88 +32,88 @@ export const handlers = [
         pageSize,
         sort,
       });
-      return res(ctx.json(result));
+      return HttpResponse.json(result);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
-  http.get("/api/jobs/:id", async (req, res, ctx) => {
+  http.get("/api/jobs/:id", async ({ params }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     try {
-      const job = await storageService.getJob(req.params.id);
+      const job = await storageService.getJob(params.id);
       if (!job) {
-        return res(ctx.status(404), ctx.json({ error: "Job not found" }));
+        return HttpResponse.json({ error: "Job not found" }, { status: 404 });
       }
-      return res(ctx.json(job));
+      return HttpResponse.json(job);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
-  http.post("/api/jobs", async (req, res, ctx) => {
+  http.post("/api/jobs", async ({ request }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     try {
-      const jobData = await req.json();
+      const jobData = await request.json();
       const job = await storageService.createJob(jobData);
-      return res(ctx.status(201), ctx.json(job));
+      return HttpResponse.json(job, { status: 201 });
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
-  http.patch("/api/jobs/:id", async (req, res, ctx) => {
+  http.patch("/api/jobs/:id", async ({ params, request }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     try {
-      const updates = await req.json();
-      const job = await storageService.updateJob(req.params.id, updates);
-      return res(ctx.json(job));
+      const updates = await request.json();
+      const job = await storageService.updateJob(params.id, updates);
+      return HttpResponse.json(job);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
-  http.patch("/api/jobs/:id/reorder", async (req, res, ctx) => {
+  http.patch("/api/jobs/:id/reorder", async ({ request }) => {
     await delay();
 
     // Higher error rate for reorder to test rollback
     if (Math.random() < 0.1) {
-      return res(ctx.status(500), ctx.json({ error: "Reorder failed" }));
+      return HttpResponse.json({ error: "Reorder failed" }, { status: 500 });
     }
 
     try {
-      const { fromOrder, toOrder } = await req.json();
+      const { fromOrder, toOrder } = await request.json();
       await storageService.reorderJobs(fromOrder, toOrder);
-      return res(ctx.json({ success: true }));
+      return HttpResponse.json({ success: true });
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
   // Candidates endpoints
-  http.get("/api/candidates", async (req, res, ctx) => {
+  http.get("/api/candidates", async ({ request }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
-    const url = new URL(req.url);
+    const url = new URL(request.url);
     const search = url.searchParams.get("search") || "";
     const stage = url.searchParams.get("stage") || "";
     const page = parseInt(url.searchParams.get("page")) || 1;
@@ -126,116 +126,119 @@ export const handlers = [
         page,
         pageSize,
       });
-      return res(ctx.json(result));
+      return HttpResponse.json(result);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
-  http.get("/api/candidates/:id", async (req, res, ctx) => {
+  http.get("/api/candidates/:id", async ({ params }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     try {
-      const candidate = await storageService.getCandidate(req.params.id);
+      const candidate = await storageService.getCandidate(params.id);
       if (!candidate) {
-        return res(ctx.status(404), ctx.json({ error: "Candidate not found" }));
+        return HttpResponse.json(
+          { error: "Candidate not found" },
+          { status: 404 }
+        );
       }
-      return res(ctx.json(candidate));
+      return HttpResponse.json(candidate);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
-  http.patch("/api/candidates/:id", async (req, res, ctx) => {
+  http.patch("/api/candidates/:id", async ({ params, request }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     try {
-      const updates = await req.json();
+      const updates = await request.json();
       const candidate = await storageService.updateCandidate(
-        req.params.id,
+        params.id,
         updates
       );
-      return res(ctx.json(candidate));
+      return HttpResponse.json(candidate);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
-  http.get("/api/candidates/:id/timeline", async (req, res, ctx) => {
+  http.get("/api/candidates/:id/timeline", async ({ params }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     try {
-      const timeline = await storageService.getCandidateTimeline(req.params.id);
-      return res(ctx.json(timeline));
+      const timeline = await storageService.getCandidateTimeline(params.id);
+      return HttpResponse.json(timeline);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
   // Assessments endpoints
-  http.get("/api/assessments/:jobId", async (req, res, ctx) => {
+  http.get("/api/assessments/:jobId", async ({ params }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     try {
-      const assessment = await storageService.getAssessment(req.params.jobId);
-      return res(ctx.json(assessment || null));
+      const assessment = await storageService.getAssessment(params.jobId);
+      return HttpResponse.json(assessment || null);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
-  http.put("/api/assessments/:jobId", async (req, res, ctx) => {
+  http.put("/api/assessments/:jobId", async ({ params, request }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     try {
-      const assessmentData = await req.json();
+      const assessmentData = await request.json();
       const assessment = await storageService.saveAssessment(
-        req.params.jobId,
+        params.jobId,
         assessmentData
       );
-      return res(ctx.json(assessment));
+      return HttpResponse.json(assessment);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 
-  http.post("/api/assessments/:jobId/submit", async (req, res, ctx) => {
+  http.post("/api/assessments/:jobId/submit", async ({ params, request }) => {
     await delay();
 
     if (shouldError()) {
-      return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      return HttpResponse.json({ error: "Server error" }, { status: 500 });
     }
 
     try {
-      const { candidateId, responses } = await req.json();
+      const { candidateId, responses } = await request.json();
       const result = await storageService.submitAssessmentResponse(
-        req.params.jobId,
+        params.jobId,
         candidateId,
         responses
       );
-      return res(ctx.json(result));
+      return HttpResponse.json(result);
     } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: error.message }));
+      return HttpResponse.json({ error: error.message }, { status: 500 });
     }
   }),
 ];
