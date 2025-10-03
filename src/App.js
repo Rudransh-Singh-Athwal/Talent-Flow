@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,6 +12,16 @@ import AssessmentsPage from "./pages/AssessmentsPage";
 import "./App.css";
 
 function App() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
     <Router>
       <div className="app">
@@ -19,26 +29,48 @@ function App() {
           <div className="nav-brand">
             <h2>TalentFlow</h2>
           </div>
-          <div className="nav-links">
+
+          {/* Hamburger Menu Button */}
+          <button
+            className="mobile-menu-toggle"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+          >
+            <span className={`hamburger ${mobileMenuOpen ? "open" : ""}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+
+          <div className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
             <NavLink
               to="/jobs"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={closeMobileMenu}
             >
               Jobs
             </NavLink>
             <NavLink
               to="/candidates"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={closeMobileMenu}
             >
               Candidates
             </NavLink>
             <NavLink
               to="/assessments"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={closeMobileMenu}
             >
               Assessments
             </NavLink>
           </div>
+
+          {/* Overlay for mobile menu */}
+          {mobileMenuOpen && (
+            <div className="mobile-menu-overlay" onClick={closeMobileMenu} />
+          )}
         </nav>
 
         <main className="main-content">
