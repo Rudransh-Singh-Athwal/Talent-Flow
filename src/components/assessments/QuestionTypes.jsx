@@ -23,7 +23,6 @@ const QuestionTypes = ({ question, onChange }) => {
 
   return (
     <div className="question-editor">
-      {/* Question Type */}
       <div className="form-group">
         <label className="form-label">Question Type</label>
         <select
@@ -40,7 +39,6 @@ const QuestionTypes = ({ question, onChange }) => {
         </select>
       </div>
 
-      {/* Question Text */}
       <div className="form-group">
         <label className="form-label">Question</label>
         <input
@@ -52,7 +50,6 @@ const QuestionTypes = ({ question, onChange }) => {
         />
       </div>
 
-      {/* Required Toggle */}
       <div className="form-group">
         <label className="checkbox-label">
           <input
@@ -64,7 +61,6 @@ const QuestionTypes = ({ question, onChange }) => {
         </label>
       </div>
 
-      {/* Type-specific options */}
       {(question.type === "single-choice" ||
         question.type === "multi-choice") && (
         <div className="form-group">
@@ -98,7 +94,6 @@ const QuestionTypes = ({ question, onChange }) => {
           </div>
         </div>
       )}
-
       {question.type === "short-text" && (
         <div className="form-group">
           <label className="form-label">Max Length</label>
@@ -113,7 +108,6 @@ const QuestionTypes = ({ question, onChange }) => {
           />
         </div>
       )}
-
       {question.type === "long-text" && (
         <div className="form-group">
           <label className="form-label">Max Length</label>
@@ -128,7 +122,6 @@ const QuestionTypes = ({ question, onChange }) => {
           />
         </div>
       )}
-
       {question.type === "numeric" && (
         <div className="numeric-constraints">
           <div className="form-group">
@@ -157,21 +150,6 @@ const QuestionTypes = ({ question, onChange }) => {
           </div>
         </div>
       )}
-
-      {/* Conditional Logic */}
-      <div className="form-group">
-        <label className="form-label">Show Condition (optional)</label>
-        <input
-          type="text"
-          className="form-input"
-          value={question.condition || ""}
-          onChange={(e) => handleChange({ condition: e.target.value })}
-          placeholder="e.g., Q1 === 'Yes'"
-        />
-        <small className="form-help">
-          Show this question only when condition is met
-        </small>
-      </div>
     </div>
   );
 };
