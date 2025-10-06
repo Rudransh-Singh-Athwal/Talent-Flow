@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 const AssessmentPreview = ({ assessment }) => {
   const [responses, setResponses] = useState({});
   const [errors, setErrors] = useState({});
 
+  const getQuestionId = (sectionIndex, questionIndex) => {
+    return `s${sectionIndex}-q${questionIndex}`;
+  };
+
   const handleResponseChange = (questionId, value) => {
     setResponses((prev) => ({ ...prev, [questionId]: value }));
-    // Clear error when user starts typing
     if (errors[questionId]) {
       setErrors((prev) => ({ ...prev, [questionId]: "" }));
     }
   };
 
-  const validateQuestion = (question) => {
-    const response = responses[question.id];
+  const validateQuestion = (question, questionId) => {
+    const response = responses[questionId];
 
     if (
       question.required &&
@@ -52,39 +55,47 @@ const AssessmentPreview = ({ assessment }) => {
     return null;
   };
 
-  const shouldShowQuestion = (question, sectionQuestions) => {
+  const shouldShowQuestion = (question, sectionQuestions, sectionIndex) => {
     if (!question.condition) return true;
 
-    // Simple condition parsing (e.g., "Q1 === 'Yes'")
     try {
       const condition = question.condition.replace(
         /Q(\d+)/g,
         (match, questionNum) => {
-          const targetQuestion = sectionQuestions[parseInt(questionNum) - 1];
+          const targetQuestionIndex = parseInt(questionNum) - 1;
+          const targetQuestion = sectionQuestions[targetQuestionIndex];
           if (targetQuestion) {
-            const response = responses[targetQuestion.id];
+            const targetId = getQuestionId(sectionIndex, targetQuestionIndex);
+            const response = responses[targetId];
             return JSON.stringify(response);
           }
           return "null";
         }
       );
 
-      return eval(condition);
+      return condition;
     } catch (e) {
-      return true; // Show by default if condition parsing fails
+      return true;
     }
   };
 
-  const renderQuestion = (question, questionIndex, sectionQuestions) => {
-    if (!shouldShowQuestion(question, sectionQuestions)) {
+  const renderQuestion = (
+    question,
+    questionIndex,
+    sectionQuestions,
+    sectionIndex
+  ) => {
+    const questionId = getQuestionId(sectionIndex, questionIndex);
+
+    if (!shouldShowQuestion(question, sectionQuestions, sectionIndex)) {
       return null;
     }
 
-    const error = errors[question.id];
-    const response = responses[question.id];
+    const error = errors[questionId];
+    const response = responses[questionId];
 
     return (
-      <div key={question.id} className="preview-question">
+      <div key={questionId} className="preview-question">
         <label className="preview-question-label">
           {questionIndex + 1}. {question.question}
           {question.required && <span className="required">*</span>}
@@ -95,7 +106,7 @@ const AssessmentPreview = ({ assessment }) => {
             type="text"
             className={`form-input ${error ? "error" : ""}`}
             value={response || ""}
-            onChange={(e) => handleResponseChange(question.id, e.target.value)}
+            onChange={(e) => handleResponseChange(questionId, e.target.value)}
             maxLength={question.maxLength}
           />
         )}
@@ -104,7 +115,7 @@ const AssessmentPreview = ({ assessment }) => {
           <textarea
             className={`form-textarea ${error ? "error" : ""}`}
             value={response || ""}
-            onChange={(e) => handleResponseChange(question.id, e.target.value)}
+            onChange={(e) => handleResponseChange(questionId, e.target.value)}
             maxLength={question.maxLength}
             rows={4}
           />
@@ -115,7 +126,7 @@ const AssessmentPreview = ({ assessment }) => {
             type="number"
             className={`form-input ${error ? "error" : ""}`}
             value={response || ""}
-            onChange={(e) => handleResponseChange(question.id, e.target.value)}
+            onChange={(e) => handleResponseChange(questionId, e.target.value)}
             min={question.min}
             max={question.max}
           />
@@ -127,11 +138,11 @@ const AssessmentPreview = ({ assessment }) => {
               <label key={optionIndex} className="radio-label">
                 <input
                   type="radio"
-                  name={`question_${question.id}`}
+                  name={questionId}
                   value={option}
                   checked={response === option}
                   onChange={(e) =>
-                    handleResponseChange(question.id, e.target.value)
+                    handleResponseChange(questionId, e.target.value)
                   }
                 />
                 {option}
@@ -153,7 +164,7 @@ const AssessmentPreview = ({ assessment }) => {
                     const newResponses = e.target.checked
                       ? [...currentResponses, option]
                       : currentResponses.filter((r) => r !== option);
-                    handleResponseChange(question.id, newResponses);
+                    handleResponseChange(questionId, newResponses);
                   }}
                 />
                 {option}
@@ -187,12 +198,13 @@ const AssessmentPreview = ({ assessment }) => {
     const newErrors = {};
     let hasErrors = false;
 
-    assessment.sections.forEach((section) => {
-      section.questions.forEach((question) => {
-        if (shouldShowQuestion(question, section.questions)) {
-          const error = validateQuestion(question);
+    assessment.sections.forEach((section, sectionIndex) => {
+      section.questions.forEach((question, questionIndex) => {
+        const questionId = getQuestionId(sectionIndex, questionIndex);
+        if (shouldShowQuestion(question, section.questions, sectionIndex)) {
+          const error = validateQuestion(question, questionId);
           if (error) {
-            newErrors[question.id] = error;
+            newErrors[questionId] = error;
             hasErrors = true;
           }
         }
@@ -231,7 +243,12 @@ const AssessmentPreview = ({ assessment }) => {
             <h4 className="section-title">{section.title}</h4>
 
             {section.questions.map((question, questionIndex) =>
-              renderQuestion(question, questionIndex, section.questions)
+              renderQuestion(
+                question,
+                questionIndex,
+                section.questions,
+                sectionIndex
+              )
             )}
           </div>
         ))}
